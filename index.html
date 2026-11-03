@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Üniversite Ders & Sınav Portalı</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-graduation-cap text-3xl text-amber-400"></i>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide">Öğrenci Hazırlık Portalı</h1>
+                    <p class="text-xs text-indigo-200">Tüm Dersler, Notlar ve Soru Bankaları Tek Çatı Altında</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <div class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+
+        <!-- SIDEBAR: DERS SEÇİMİ -->
+        <aside class="md:col-span-1 bg-white rounded-xl shadow-sm border border-slate-200 p-4 h-fit">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-2">Ders Portalları</h2>
+            <nav id="course-list" class="space-y-1">
+                <!-- Javascript ile dinamik dolacak -->
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="md:col-span-3 flex flex-col space-y-4">
+            
+            <!-- DERS BAŞLIĞI VE SEKMELER -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 id="current-course-title" class="text-2xl font-bold text-slate-800">Ders Seçiniz</h2>
+                    <p id="current-course-instructor" class="text-xs text-slate-500 font-medium"></p>
+                </div>
+                <div class="flex bg-slate-100 p-1 rounded-lg border border-slate-200 self-stretch sm:self-auto">
+                    <button id="btn-notes" onclick="switchTab('notes')" class="flex-1 sm:flex-initial px-4 py-2 text-sm font-semibold rounded-md transition-all bg-white text-indigo-900 shadow-sm">
+                        <i class="fa-solid fa-book-open mr-2"></i>Ders Notları
+                    </button>
+                    <button id="btn-quiz" onclick="switchTab('quiz')" class="flex-1 sm:flex-initial px-4 py-2 text-sm font-semibold rounded-md transition-all text-slate-600 hover:text-slate-900">
+                        <i class="fa-solid fa-pen-to-square mr-2"></i>Soru Bankası
+                    </button>
+                </div>
+            </div>
+
+            <!-- DERS NOTLARI SEKMESİ -->
+            <div id="tab-notes-content" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
+                <!-- Javascript ile yüklenecek -->
+            </div>
+
+            <!-- SORU BANKASI SEKMESİ -->
+            <div id="tab-quiz-content" class="hidden bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6">
+                <!-- Hafta/Bölüm Seçici -->
+                <div class="flex flex-wrap gap-2 pb-4 border-b border-slate-200" id="quiz-chapter-buttons">
+                    <!-- Dinamik Butonlar -->
+                </div>
+                <!-- Soru Alanı -->
+                <div id="quiz-container" class="space-y-6">
+                    <!-- Dinamik Sorular -->
+                </div>
+                <!-- Sonuç Gösterimi -->
+                <div class="pt-4 border-t border-slate-200 flex justify-between items-center">
+                    <button onclick="calculateScore()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 rounded-lg shadow-sm transition-all">
+                        Testi Bitir ve Değerlendir
+                    </button>
+                    <div id="quiz-result" class="text-lg font-bold"></div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // TÜM DERS VERİLERİ VERİTABANI MODELİ
+        const portalData = {
+            "programlama": {
+                title: "Programlama ve Algoritma",
+                instructor: "Öğr. Gör. Hazal Sedef ERİK",
+                icon: "fa-code",
+                notes: [
+                    { title: "1. Hafta: Bilgisayarların Çalışma Mantığı", detail: "CPU (ALU, Kontrol Birimi, Kaydediciler), RAM (Geçici Hafıza), SSD/HDD (Kalıcı Hafıza), Girdi/Çıktı birimleri ve Derleyici (Compiler) / Yorumlayıcı (Interpreter) farkları." },
+                    { title: "2. Hafta: Algoritma Kurma ve Akış Şemaları", detail: "Sözde kod (Pseudocode), Akış şeması sembolleri (Elips: Başla/Bitir, Paralelkenar: Girdi/Çıktı, Eşkenar Dörtgen: Karar), Akış çizgileri ve sınır değer kuralları." },
+                    { title: "3. Hafta: Değişkenler ve Veri Tipleri", detail: "Tam Sayı (Integer), Ondalıklı Sayı (Float/Double), Metinsel (String), Mantıksal (Boolean) tipler. Değişken tanımlama kuralları ve bellekte atama mantığı." },
+                    { title: "4. Hafta: Operatörler ve Akış Kontrolü", detail: "Aritmetik, İlişkisel ve Mantıksal (AND, OR, NOT) operatörler. İşlem öncelikleri sıralaması. 'if-else' ve 'switch-case' karar mekanizmaları." }
+                ],
+                quizzes: {
+                    "h1": {
+                        title: "1. Hafta Testi",
+                        questions: [
+                            { id: 1, q: "Aşağıdakilerden hangisi bir bilgisayarın ana işlem birimidir?", options: ["RAM", "CPU", "SSD", "GPU"], correct: 1, exp: "CPU (Merkezi İşlem Birimi) bilgisayarın beynidir." },
+                            { id: 2, q: "Geçici veri depolama alanı aşağıdakilerden hangisidir?", options: ["HDD", "ROM", "RAM", "NVMe"], correct: 2, exp: "RAM elektrik kesildiğinde sıfırlanan geçici hafızadır." }
+                        ]
+                    },
+                    "h2": {
+                        title: "2. Hafta Testi",
+                        questions: [
+                            { id: 3, q: "Akış şemalarında karar verme sürecini temsil eden sembol hangisidir?", options: ["Elips", "Dikdörtgen", "Eşkenar Dörtgen", "Paralelkenar"], correct: 2, exp: "Karar aşamaları (Evet/Hayır) eşkenar dörtgen ile gösterilir." }
+                        ]
+                    }
+                }
+            },
+            "vtys": {
+                title: "Veritabanı Yönetim Sistemleri (VTYS)",
+                instructor: "Öğr. Gör. Veli Mürşid İkbal AKÇAER",
+                icon: "fa-database",
+                notes: [
+                    { title: "1. Konu: VTYS Temelleri ve Tarihçesi", detail: "Veri ve Bilgi ayrımı, Dosya sistemlerinin eksileri (Veri tekrarı, tutarsızlık, erişim zorluğu), Ağsel ve Hiyerarşik modeller (IDS, IMS) ve İlişkisel Model (System R)." },
+                    { title: "2. Konu: E-R Diyagramları", detail: "Varlık (Entity), Nitelik (Attribute), Bağıntı (Relationship). Birincil Anahtar (Primary Key), Yabancı Anahtar (Foreign Key), Türetilen nitelikler ve Kardinalite oranları (1:1, 1:N, N:M)." },
+                    { title: "3. Konu: Veri Bütünlüğü Kısıtları", detail: "Domain Integrity, Entity Integrity (PK boş olamaz), Referential Integrity (FK geçerli bir PK'ye işaret etmeli), CHECK, UNIQUE ve DEFAULT kısıtlamaları." }
+                ],
+                quizzes: {
+                    "vize": {
+                        title: "Vize Çalışma Seti",
+                        questions: [
+                            { id: 101, q: "Bir tablonun başka bir tabloya bağımlılığını sağlayan ve referans bütünlüğü kuran anahtar hangisidir?", options: ["Primary Key", "Foreign Key", "Candidate Key", "Super Key"], correct: 1, exp: "Foreign Key (Yabancı Anahtar) ilişkisel veritabanlarında referans bütünlüğü sağlar." },
+                            { id: 102, q: "Aşağıdaki kısıtlamalardan hangisi bir sütuna mükerrer (tekrar eden) değer girilmesini engeller?", options: ["CHECK", "NOT NULL", "UNIQUE", "DEFAULT"], correct: 2, exp: "UNIQUE kısıtı ilgili alandaki tüm değerlerin benzersiz olmasını zorunlu kılar." }
+                        ]
+                    }
+                }
+            },
+            "kariyer": {
+                title: "Kariyer ve İletişim Becerileri",
+                instructor: "Ders Kurulu",
+                icon: "fa-comments",
+                notes: [
+                    { title: "1. Hafta: Kariyer Kuramları", detail: "Donald Super'ın Yaşam Dönemleri (Büyüme, Araştırma, Yerleşme, Bakım, Çöküş). Protean Kariyer (Öz-yönelimli), Sınırsız Kariyer ve Portföy Kariyer modelleri." },
+                    { title: "2. Hafta: Hard Skills vs Soft Skills", detail: "Teknik Beceriler (Programlama, yabancı dil, SQL) ile İnce Yetenekler (Liderlik, empati, zaman yönetimi, kriz yönetimi) arasındaki farklar." },
+                    { title: "3. Hafta: İletişim Süreci ve Mehrabian Modeli", detail: "Albert Mehrabian İletişim Modeli: %55 Beden Dili (Görsel), %38 Ses Tonu (İşitsel), %7 Sözcükler (Sözel). Ben Dili ve Sen Dili kullanımı." },
+                    { title: "4. Hafta: Diksiyon ve Beden Dili", detail: "İstanbul Ağzı esaslı diksiyon, diyafram nefesi, durak ve vurgu kuralları. Açık/Kapalı beden dili duruşları ve mikro ifadeler." }
+                ],
+                quizzes: {
+                    "genel": {
+                        title: "Genel Değerlendirme",
+                        questions: [
+                            { id: 201, q: "Mehrabian modeline göre yüz yüze iletişimde en yüksek etki oranına sahip unsur hangisidir?", options: ["Sözcük Seçimi", "Ses Tonu", "Beden Dili", "Yazılı Notlar"], correct: 2, exp: "Mehrabian modelinde %55 etki oranı ile Beden Dili ilk sıradadır." }
+                        ]
+                    }
+                }
+            },
+            "donanim": {
+                title: "Bilgisayar Donanımı ve Ağ Sistemleri",
+                instructor: "Ders Kurulu",
+                icon: "fa-microchip",
+                notes: [
+                    { title: "1. Hafta: İşlemci ve Bellek Mimarisi", detail: "ALU, Kontrol Ünitesi, Ön Bellek (L1, L2, L3 Cache). BIOS/UEFI mimarisi ve Güç Kaynağı (PSU) standartları." },
+                    { title: "2. Hafta: Giriş ve Çıkış Birimleri", detail: "Giriş: Klavye, Fare (DPI, Polling Rate), Tarayıcı (OCR), Biyometrik Sensörler. Çıkış: Monitörler (Hz, IPS/VA/TN panel, HDMI/DisplayPort), Yazıcılar (Lazer, Mürekkep, Termal)." },
+                    { title: "3. Hafta: Anakart ve Ağ Donanımları", detail: "PCIe Veri Yolları, VRM Güç Fazları. Switch (Anahtar), Router (Yönlendirici), DHCP (Otomatik IP), DNS (İsim Çözümleme)." }
+                ],
+                quizzes: {
+                    "vize": {
+                        title: "Soru Bankası",
+                        questions: [
+                            { id: 301, q: "Domain adlarını IP adreslerine çeviren ağ protokolü/servisi hangisidir?", options: ["DHCP", "DNS", "FTP", "HTTP"], correct: 1, exp: "DNS (Domain Name System) alan adlarını IP adreslerine çevirir." }
+                        ]
+                    }
+                }
+            },
+            "int101": {
+                title: "Ağ Teknolojileri (INT101)",
+                instructor: "Ders Kurulu",
+                icon: "fa-network-wired",
+                notes: [
+                    { title: "1. Hafta: Ağ Türleri ve Tarihçe", detail: "LAN, MAN, WAN, VPN kavramları. ARPANET tarihçesi. Peer-to-Peer (Eşler Arası) ile Sunucu Tabanlı (Client-Server) mimariler." },
+                    { title: "2. Hafta: Veri İletişim Esasları", detail: "Sayısal Haberleşme, Asenkron ve Senkron İletişim. Seri ve Paralel veri aktarım farkları." },
+                    { title: "3. Hafta: OSI Referans Modeli", detail: "7 Katman: Fiziksel, Veri Bağı, Ağ, Taşıma, Oturum, Sunum, Uygulama katmanlarının görevleri ve veri birimleri (Bits, Frames, Packets, Segments)." }
+                ],
+                quizzes: {
+                    "h1": {
+                        title: "OSI & Ağ Testi",
+                        questions: [
+                            { id: 401, q: "OSI modelinin 3. katmanı (Network Layer) veri birimi nedir?", options: ["Bit", "Frame (Çerçeve)", "Packet (Paket)", "Segment"], correct: 2, exp: "Ağ Katmanında (3. Katman) veriler Paket (Packet) halinde taşınır." }
+                        ]
+                    }
+                }
+            }
+        };
+
+        // AKTİF DURUM DEĞİŞKENLERİ
+        let currentCourseKey = "programlama";
+        let activeTab = "notes";
+        let activeQuizChapter = null;
+
+        // SAYFA YÜKLENDİĞİNDE
+        document.addEventListener("DOMContentLoaded", () => {
+            renderSidebar();
+            loadCourse(currentCourseKey);
+        });
+
+        // SIDEBAR MENÜSÜNÜ ÇİZME
+        function renderSidebar() {
+            const container = document.getElementById("course-list");
+            container.innerHTML = "";
+
+            Object.keys(portalData).forEach(key => {
+                const course = portalData[key];
+                const isActive = key === currentCourseKey;
+                const btn = document.createElement("button");
+                btn.onclick = () => loadCourse(key);
+                btn.className = `w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                    isActive 
+                    ? "bg-indigo-50 text-indigo-900 border border-indigo-200 shadow-sm" 
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                }`;
+                btn.innerHTML = `
+                    <i class="fa-solid ${course.icon} text-lg ${isActive ? "text-indigo-600" : "text-slate-400"}"></i>
+                    <span class="text-left flex-1">${course.title}</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        // DERS YÜKLEME
+        function loadCourse(key) {
+            currentCourseKey = key;
+            const course = portalData[key];
+
+            document.getElementById("current-course-title").innerText = course.title;
+            document.getElementById("current-course-instructor").innerText = course.instructor;
+
+            renderSidebar();
+            renderNotes();
+            renderQuizChapters();
+
+            // Varsayılan teste ayarla
+            const chapters = Object.keys(course.quizzes);
+            if(chapters.length > 0) {
+                activeQuizChapter = chapters[0];
+                renderQuizQuestions();
+            }
+        }
+
+        // SEKME DEĞİŞTİRME
+        function switchTab(tab) {
+            activeTab = tab;
+            const notesContent = document.getElementById("tab-notes-content");
+            const quizContent = document.getElementById("tab-quiz-content");
+            const btnNotes = document.getElementById("btn-notes");
+            const btnQuiz = document.getElementById("btn-quiz");
+
+            if (tab === "notes") {
+                notesContent.classList.remove("hidden");
+                quizContent.classList.add("hidden");
+                btnNotes.className = "flex-1 sm:flex-initial px-4 py-2 text-sm font-semibold rounded-md transition-all bg-white text-indigo-900 shadow-sm";
+                btnQuiz.className = "flex-1 sm:flex-initial px-4 py-2 text-sm font-semibold rounded-md transition-all text-slate-600 hover:text-slate-900";
+            } else {
+                notesContent.classList.add("hidden");
+                quizContent.classList.remove("hidden");
+                btnQuiz.className = "flex-1 sm:flex-initial px-4 py-2 text-sm font-semibold rounded-md transition-all bg-white text-indigo-900 shadow-sm";
+                btnNotes.className = "flex-1 sm:flex-initial px-4 py-2 text-sm font-semibold rounded-md transition-all text-slate-600 hover:text-slate-900";
+            }
+        }
+
+        // DERS NOTLARINI ÇİZME
+        function renderNotes() {
+            const container = document.getElementById("tab-notes-content");
+            const notes = portalData[currentCourseKey].notes;
+
+            if (!notes || notes.length === 0) {
+                container.innerHTML = `<p class="text-slate-500 italic">Bu ders için henüz not eklenmemiştir.</p>`;
+                return;
+            }
+
+            container.innerHTML = notes.map(item => `
+                <div class="border-b border-slate-100 pb-4 last:border-0 last:pb-0">
+                    <h3 class="text-lg font-bold text-indigo-950 mb-2">${item.title}</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">${item.detail}</p>
+                </div>
+            `).join("");
+        }
+
+        // QUIZ BÖLÜM BUTONLARINI ÇİZME
+        function renderQuizChapters() {
+            const container = document.getElementById("quiz-chapter-buttons");
+            const quizzes = portalData[currentCourseKey].quizzes;
+            const keys = Object.keys(quizzes);
+
+            container.innerHTML = "";
+            document.getElementById("quiz-result").innerText = "";
+
+            if (keys.length === 0) {
+                container.innerHTML = `<p class="text-slate-500 text-sm italic">Bu derse ait test bulunmamaktadır.</p>`;
+                document.getElementById("quiz-container").innerHTML = "";
+                return;
+            }
+
+            keys.forEach(chKey => {
+                const btn = document.createElement("button");
+                const isActive = chKey === activeQuizChapter;
+                btn.onclick = () => {
+                    activeQuizChapter = chKey;
+                    renderQuizChapters();
+                    renderQuizQuestions();
+                };
+                btn.className = `px-3 py-1.5 text-xs font-bold rounded-lg border transition-all ${
+                    isActive 
+                    ? "bg-indigo-600 text-white border-indigo-600" 
+                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                }`;
+                btn.innerText = quizzes[chKey].title;
+                container.appendChild(btn);
+            });
+        }
+
+        // SORULARI ÇİZME
+        function renderQuizQuestions() {
+            const container = document.getElementById("quiz-container");
+            document.getElementById("quiz-result").innerText = "";
+
+            if (!activeQuizChapter || !portalData[currentCourseKey].quizzes[activeQuizChapter]) {
+                container.innerHTML = "";
+                return;
+            }
+
+            const questions = portalData[currentCourseKey].quizzes[activeQuizChapter].questions;
+
+            container.innerHTML = questions.map((q, idx) => `
+                <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-3" id="q-box-${q.id}">
+                    <p class="font-semibold text-slate-800 text-sm">${idx + 1}. ${q.q}</p>
+                    <div class="space-y-2">
+                        ${q.options.map((opt, oIdx) => `
+                            <label class="flex items-center space-x-3 p-2 rounded bg-white border border-slate-200 cursor-pointer hover:bg-indigo-50/50 text-sm">
+                                <input type="radio" name="question-${q.id}" value="${oIdx}" class="text-indigo-600 focus:ring-indigo-500">
+                                <span>${opt}</span>
+                            </label>
+                        `).join("")}
+                    </div>
+                    <div id="feedback-${q.id}" class="hidden mt-2 p-2 rounded text-xs"></div>
+                </div>
+            `).join("");
+        }
+
+        // PUAN HESAPLAMA VE GERİ BİLDİRİM
+        function calculateScore() {
+            if (!activeQuizChapter) return;
+
+            const questions = portalData[currentCourseKey].quizzes[activeQuizChapter].questions;
+            let correctCount = 0;
+
+            questions.forEach(q => {
+                const selected = document.querySelector(`input[name="question-${q.id}"]:checked`);
+                const feedbackEl = document.getElementById(`feedback-${q.id}`);
+                feedbackEl.classList.remove("hidden", "bg-emerald-100", "text-emerald-800", "bg-rose-100", "text-rose-800");
+
+                if (selected) {
+                    const answerVal = parseInt(selected.value);
+                    if (answerVal === q.correct) {
+                        correctCount++;
+                        feedbackEl.classList.add("bg-emerald-100", "text-emerald-800");
+                        feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check mr-1"></i> <strong>Doğru!</strong> ${q.exp}`;
+                    } else {
+                        feedbackEl.classList.add("bg-rose-100", "text-rose-800");
+                        feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i> <strong>Yanlış.</strong> Doğru cevap: <em>${q.options[q.correct]}</em>. (${q.exp})`;
+                    }
+                } else {
+                    feedbackEl.classList.add("bg-rose-100", "text-rose-800");
+                    feedbackEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1"></i> Boş bırakıldı. Doğru cevap: <em>${q.options[q.correct]}</em>. (${q.exp})`;
+                }
+            });
+
+            const total = questions.length;
+            const score = Math.round((correctCount / total) * 100);
+            const resultEl = document.getElementById("quiz-result");
+            resultEl.className = `text-lg font-bold ${score >= 60 ? "text-emerald-600" : "text-rose-600"}`;
+            resultEl.innerText = `Sonuç: ${correctCount} / ${total} Doğru (%${score})`;
+        }
+    </script>
+</body>
+</html>
